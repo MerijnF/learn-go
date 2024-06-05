@@ -29,7 +29,7 @@ func check(e error) {
 }
 
 func handleGet(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	setHeaders(w)
 
 	stmt, err := db.Prepare("SELECT id, title, completed FROM todos")
 	check(err)
@@ -49,7 +49,7 @@ func handleGet(w http.ResponseWriter, req *http.Request) {
 }
 
 func handleGetWithId(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	setHeaders(w)
 
 	pathId := req.PathValue("id")
 
@@ -69,7 +69,7 @@ func handleGetWithId(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlePut(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	setHeaders(w)
 
 	pathId := req.PathValue("id")
 
@@ -90,7 +90,7 @@ func handlePut(w http.ResponseWriter, req *http.Request) {
 }
 
 func handlePost(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	setHeaders(w)
 
 	var todo Todo
 	err := json.NewDecoder(req.Body).Decode(&todo)
@@ -106,6 +106,13 @@ func handlePost(w http.ResponseWriter, req *http.Request) {
 	todo.Id = int(id)
 	
 	json.NewEncoder(w).Encode(todo)
+}
+
+func setHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 }
 
 func handleDelete(w http.ResponseWriter, req *http.Request) {
@@ -141,6 +148,8 @@ func main() {
 	http.HandleFunc("GET /todo/{id}" , handleGetWithId)
 	http.HandleFunc("PUT /todo/{id}" , handlePut)
 	http.HandleFunc("DELETE /todo/{id}" , handleDelete)
+	http.HandleFunc("OPTIONS /todo", func(w http.ResponseWriter, r *http.Request) {setHeaders(w)})
+	http.HandleFunc("OPTIONS /todo/{id}", func(w http.ResponseWriter, r *http.Request) {setHeaders(w)})
 	
 
 	http.ListenAndServe(":8090", nil)
