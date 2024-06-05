@@ -1,0 +1,13 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "tododb",
+            "database": "${workspaceFolder:learn-go}/todo.db"
+        }
+    ],
+    "cSpell.words": [
+        "todos"
+    ]
+}
