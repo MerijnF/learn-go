@@ -1,14 +1,15 @@
 # Learn Go
 
-## Running the application
 
-### Todo api
+## Todo api
+
+Simple api for tracking todo items
 
 ```
 go run ./cmd/todo-api/main.go
 ```
 
-#### Drop or Start with fresh DB
+### Drop or Start with fresh DB
 
 Start server with a fresh database
 
@@ -21,3 +22,7 @@ Only drop the database
 ```
 go run ./cmd/todo-api/main.go drop
 ```
+
+## tea-testing
+
+Testing out bubbletea, bubbles and lipgloss
