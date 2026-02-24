@@ -8,24 +8,24 @@ import (
 	"os"
 	"strconv"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 const dbPath = "./todo.db"
-const dbDriver = "sqlite3"
+const dbDriver = "sqlite"
 
 var db *sql.DB
 
 type Todo struct {
-	Id int `json:"id"`
-	Title string `json:"title"`
-	Completed bool 	`json:"completed"`
+	Id        int    `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
 }
 
 func check(e error) {
-    if e != nil {
-        panic(e)
-    }
+	if e != nil {
+		panic(e)
+	}
 }
 
 func handleGet(w http.ResponseWriter, req *http.Request) {
@@ -104,7 +104,7 @@ func handlePost(w http.ResponseWriter, req *http.Request) {
 	check(err)
 
 	todo.Id = int(id)
-	
+
 	json.NewEncoder(w).Encode(todo)
 }
 
@@ -129,8 +129,17 @@ func handleDelete(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	arg := os.Args[1:]
-	if(len(arg) > 0 && arg[0] == "clear") {
-		os.Remove(dbPath)
+	if len(arg) > 0 {
+		if arg[0] == "drop" {
+			fmt.Println("Dropping database")
+			os.Remove(dbPath)
+			os.Exit(0)
+		}
+
+		if arg[0] == "clear" {
+			fmt.Println("Dropping database before starting server")
+			os.Remove(dbPath)
+		}
 	}
 
 	dbConnection, err := sql.Open(dbDriver, dbPath)
@@ -143,14 +152,13 @@ func main() {
 	check(err)
 
 	fmt.Println("Serving on http://localhost:8090")
-	http.HandleFunc("GET /todo" , handleGet)
+	http.HandleFunc("GET /todo", handleGet)
 	http.HandleFunc("POST /todo", handlePost)
-	http.HandleFunc("GET /todo/{id}" , handleGetWithId)
-	http.HandleFunc("PUT /todo/{id}" , handlePut)
-	http.HandleFunc("DELETE /todo/{id}" , handleDelete)
-	http.HandleFunc("OPTIONS /todo", func(w http.ResponseWriter, r *http.Request) {setHeaders(w)})
-	http.HandleFunc("OPTIONS /todo/{id}", func(w http.ResponseWriter, r *http.Request) {setHeaders(w)})
-	
+	http.HandleFunc("GET /todo/{id}", handleGetWithId)
+	http.HandleFunc("PUT /todo/{id}", handlePut)
+	http.HandleFunc("DELETE /todo/{id}", handleDelete)
+	http.HandleFunc("OPTIONS /todo", func(w http.ResponseWriter, r *http.Request) { setHeaders(w) })
+	http.HandleFunc("OPTIONS /todo/{id}", func(w http.ResponseWriter, r *http.Request) { setHeaders(w) })
 
 	http.ListenAndServe(":8090", nil)
 }
